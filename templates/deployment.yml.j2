@@ -1,5 +1,5 @@
 apiVersion: apps/v1beta2
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: {{ kubernetes_rtorrent_deployment }}
   labels:
@@ -12,8 +12,11 @@ metadata:
     {{ kubernetes_rtorrent_deployment_annotations | to_nice_yaml | indent(4) }}
 {% endif %}
 spec:
+  serviceName: "rtorrent"
   replicas: {{ kubernetes_rtorrent_replicas }}
   revisionHistoryLimit: {{ kubernetes_rtorrent_revision_history }}
+  updateStrategy:
+    type: RollingUpdate
   selector:
     matchLabels:
       app: {{ kubernetes_rtorrent_app }}
@@ -92,4 +95,3 @@ spec:
 {% for k, v in kubernetes_rtorrent_watchdirs_volumes.items() %}
       - {name: rtorrent-watchdirs-{{ k }}, {{ v.definition | to_yaml }}}
 {% endfor %}
-status: {}
