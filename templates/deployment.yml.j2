@@ -1,0 +1,91 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ kubernetes_rtorrent_deployment }}
+  labels:
+    app: {{ kubernetes_rtorrent_app }}
+{% if kubernetes_rtorrent_deployment_labels %}
+    {{ kubernetes_rtorrent_deployment_labels | to_nice_yaml | indent(4) }}
+{% endif %}
+{% if kubernetes_rtorrent_deployment_annotations %}
+  annotations:
+    {{ kubernetes_rtorrent_deployment_annotations | to_nice_yaml | indent(4) }}
+{% endif %}
+spec:
+  replicas: {{ kubernetes_rtorrent_replicas }}
+  revisionHistoryLimit: {{ kubernetes_rtorrent_revision_history }}
+  selector:
+    matchLabels:
+      app: {{ kubernetes_rtorrent_app }}
+  template:
+    metadata:
+      labels:
+        app: {{ kubernetes_rtorrent_app }}
+    spec:
+{% if kubernetes_rtorrent_node_selector|default({}) %}
+      nodeSelector:
+        {{ kubernetes_rtorrent_node_selector | to_yaml | indent(8) }}
+{% endif %}
+      restartPolicy: Always
+      containers:
+      - image: {{ kubernetes_rtorrent_image }}
+        imagePullPolicy: Always
+        name: rtorrent
+        resources:
+          {{ kubernetes_rtorrent_resources | to_yaml | indent(10) }}
+        ports:
+        - containerPort: 80
+{% if kubernetes_rtorrent_dht == "on" %}
+        - name: dht
+          containerPort: {{ kubernetes_rtorrent_dht_port }}
+{% endif %}
+{% set kubernetes_rtorrent_portrange = kubernetes_rtorrent_port_range.split("-") %}
+{% for i in range((kubernetes_rtorrent_portrange[0])|int, (kubernetes_rtorrent_portrange[1])|int + 1) %}
+        - containerPort: {{ i }}
+{% endfor %}
+        readinessProbe:
+          tcpSocket:
+            port: {{ kubernetes_rtorrent_portrange[0] }}
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: {{ kubernetes_rtorrent_portrange[0] }}
+          initialDelaySeconds: 90
+          periodSeconds: 10
+        volumeMounts:
+        - mountPath: /config/rtorrent/rtorrent.rc
+          name: rtorrent-config
+          subPath: rtorrent.rc
+        - mountPath: /config/rtorrent/rtorrent_sess
+          name: rtorrent-session
+          {% if kubernetes_rtorrent_session_volume.subPath is defined %}subPath: {{ kubernetes_rtorrent_session_volume.subPath }}{% endif %}
+
+{% for k, v in kubernetes_rtorrent_downloads_volumes.items() %}
+        - mountPath: /downloads/{{ k }}
+          name: rtorrent-downloads-{{ k }}
+          {% if v.subPath is defined %}subPath: {{ v.subPath }}{% endif %}
+
+{% endfor %}
+{% for k, v in kubernetes_rtorrent_watchdirs_volumes.items() %}
+        - mountPath: /watchdirs/{{ k }}
+          name: rtorrent-watchdirs-{{ k }}
+          {% if v.subPath is defined %}subPath: {{ v.subPath }}{% endif %}
+
+{% endfor %}
+
+      volumes:
+      - name: rtorrent-config
+        configMap:
+          name: {{ kubernetes_rtorrent_configmap }}
+          items:
+            - key: rtorrent.rc
+              path: rtorrent.rc
+      - {name: rtorrent-session, {{ kubernetes_rtorrent_session_volume.definition | to_yaml }}}
+{% for k, v in kubernetes_rtorrent_downloads_volumes.items() %}
+      - {name: rtorrent-downloads-{{ k }}, {{ v.definition | to_yaml }}}
+{% endfor %}
+{% for k, v in kubernetes_rtorrent_watchdirs_volumes.items() %}
+      - {name: rtorrent-watchdirs-{{ k }}, {{ v.definition | to_yaml }}}
+{% endfor %}
+status: {}

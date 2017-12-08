@@ -1,0 +1,32 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{ kubernetes_rtorrent_service }}
+spec:
+  selector:
+    app: {{ kubernetes_rtorrent_app }}
+  type: NodePort
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 80
+{% if kubernetes_rtorrent_dht == "on" %}
+    - name: dht
+      protocol: UDP
+      port: {{ kubernetes_rtorrent_dht_port }}
+      targetPort: dht
+      nodePort: {{ kubernetes_rtorrent_dht_port }}
+{% endif %}
+{% set kubernetes_rtorrent_portrange = kubernetes_rtorrent_port_range.split("-") %}
+{% for i in range((kubernetes_rtorrent_portrange[0])|int, (kubernetes_rtorrent_portrange[1])|int + 1) %}
+    - name: rtorrent-tcp-{{ i }}
+      protocol: TCP
+      port: {{ i }}
+      nodePort: {{ i }}
+    - name: rtorrent-udp-{{ i }}
+      protocol: UDP
+      port: {{ i }}
+      nodePort: {{ i }}
+{% endfor %}
+

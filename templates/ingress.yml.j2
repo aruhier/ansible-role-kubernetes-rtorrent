@@ -1,0 +1,21 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{ kubernetes_rtorrent_ingress.name }}
+{% if kubernetes_rtorrent_ingress.annotations %}
+  annotations:
+    {{ kubernetes_rtorrent_ingress.annotations | to_nice_yaml | indent }}
+{% endif %}
+spec:
+{% if kubernetes_rtorrent_ingress.tls %}
+  tls:
+    {{ kubernetes_rtorrent_ingress.tls | to_nice_yaml | indent }}
+{% endif %}
+  rules:
+  - host: {{ kubernetes_rtorrent_ingress.host }}
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: {{ kubernetes_rtorrent_service }}
+          servicePort: 80
