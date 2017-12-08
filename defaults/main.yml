@@ -47,7 +47,7 @@ kubernetes_rtorrent_numwant: -1
 # ----- directory settings -----
 kubernetes_rtorrent_basedir: ""
 kubernetes_rtorrent_directory_download: "{{ kubernetes_rtorrent_basedir }}/downloads/global"
-kubernetes_rtorrent_directory_session: "/config/rtorrent/kubernetes_rtorrent_sess"
+kubernetes_rtorrent_directory_session: "/config/rtorrent/rtorrent_sess"
 
 # directory_watch can be a directory path (like the default value), a dict or
 # a list of dicts for multiple watch directories.
