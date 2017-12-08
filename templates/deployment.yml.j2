@@ -44,13 +44,17 @@ spec:
         - containerPort: {{ i }}
 {% endfor %}
         readinessProbe:
-          tcpSocket:
-            port: {{ kubernetes_rtorrent_portrange[0] }}
+          exec:
+            command:
+            - pgrep
+            - rtorrent
           initialDelaySeconds: 30
           periodSeconds: 10
         livenessProbe:
-          tcpSocket:
-            port: {{ kubernetes_rtorrent_portrange[0] }}
+          exec:
+            command:
+            - pgrep
+            - rtorrent
           initialDelaySeconds: 90
           periodSeconds: 10
         volumeMounts:
