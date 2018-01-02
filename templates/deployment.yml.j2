@@ -70,13 +70,13 @@ spec:
 
 {% for k, v in kubernetes_rtorrent_downloads_volumes.items() %}
         - mountPath: /downloads/{{ k }}
-          name: rtorrent-downloads-{{ k }}
+          name: rtorrent-downloads-{{ k | regex_replace("_", "-") }}
           {% if v.subPath is defined %}subPath: {{ v.subPath }}{% endif %}
 
 {% endfor %}
 {% for k, v in kubernetes_rtorrent_watchdirs_volumes.items() %}
         - mountPath: /watchdirs/{{ k }}
-          name: rtorrent-watchdirs-{{ k }}
+          name: rtorrent-watchdirs-{{ k | regex_replace("_", "-") }}
           {% if v.subPath is defined %}subPath: {{ v.subPath }}{% endif %}
 
 {% endfor %}
@@ -90,8 +90,8 @@ spec:
               path: rtorrent.rc
       - {name: rtorrent-session, {{ kubernetes_rtorrent_session_volume.definition | to_yaml }}}
 {% for k, v in kubernetes_rtorrent_downloads_volumes.items() %}
-      - {name: rtorrent-downloads-{{ k }}, {{ v.definition | to_yaml }}}
+      - {name: rtorrent-downloads-{{ k | regex_replace("_", "-") }}, {{ v.definition | to_yaml }}}
 {% endfor %}
 {% for k, v in kubernetes_rtorrent_watchdirs_volumes.items() %}
-      - {name: rtorrent-watchdirs-{{ k }}, {{ v.definition | to_yaml }}}
+      - {name: rtorrent-watchdirs-{{ k | regex_replace("_", "-") }}, {{ v.definition | to_yaml }}}
 {% endfor %}
