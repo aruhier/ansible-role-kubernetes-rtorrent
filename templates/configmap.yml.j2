@@ -134,9 +134,9 @@ data:
         {% else %}
             {% set watch_dir_path = watch_dir %}
         {% endif %}
-        schedule = {{ watch_dir_path }},{{ watch_dir.refresh_time|default(kubernetes_rtorrent_global_refresh_time) }},{{ watch_dir.refresh_time|default(kubernetes_rtorrent_global_refresh_time) }},"load_start={{ watch_dir_path }}/*.torrent,d.set_custom1={{ watch_dir.download|default(kubernetes_rtorrent_directory_download) }}"
+        schedule2 = {{ watch_dir_path }}, {{ watch_dir.refresh_time|default(kubernetes_rtorrent_global_refresh_time) }}, {{ watch_dir.refresh_time|default(kubernetes_rtorrent_global_refresh_time) }}, "load.start={{ watch_dir_path }}/*.torrent,d.set_custom1={{ watch_dir.download|default(kubernetes_rtorrent_directory_download) }}"
     {% endfor %}
-    schedule = {{ kubernetes_rtorrent_schedule_untied_directory }}
+    schedule2 = {{ kubernetes_rtorrent_schedule_untied_directory }}
 
     # Move torrents on completion
     {% if kubernetes_rtorrent_move_when_complete %}
@@ -175,7 +175,7 @@ data:
     execute = {sh,-c,/usr/bin/php7 /usr/share/webapps/rutorrent/php/initplugins.php abc &}
     execute.nothrow = rm,/run/php/.rtorrent.sock
     network.scgi.open_local = /run/php/.rtorrent.sock
-    schedule = socket_chmod,0,0,"execute=chmod,0660,/run/php/.rtorrent.sock"
-    schedule = socket_chgrp,0,0,"execute=chgrp,abc,/run/php/.rtorrent.sock"
+    schedule2 = socket_chmod,0,0,"execute=chmod,0660,/run/php/.rtorrent.sock"
+    schedule2 = socket_chgrp,0,0,"execute=chgrp,abc,/run/php/.rtorrent.sock"
     log.open_file = "rtorrent", /config/log/rtorrent/rtorrent.log
     log.add_output = "info", "rtorrent"
