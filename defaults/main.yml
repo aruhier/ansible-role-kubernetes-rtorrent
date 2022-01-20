@@ -1,6 +1,6 @@
 ---
 
-kubernetes_rtorrent_image: "linuxserver/rutorrent:latest"
+kubernetes_rtorrent_image: "crazymax/rtorrent-rutorrent:latest"
 
 kubernetes_rtorrent_namespace: "default"
 kubernetes_rtorrent_deployment: "rtorrent"

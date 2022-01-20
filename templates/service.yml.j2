@@ -10,7 +10,11 @@ spec:
     - name: http
       protocol: TCP
       port: 80
-      targetPort: 80
+      targetPort: http
+    - name: xmlrpc
+      protocol: TCP
+      port: 8000
+      targetPort: xmlrpc
 {% if kubernetes_rtorrent_dht == "on" %}
     - name: dht
       protocol: UDP

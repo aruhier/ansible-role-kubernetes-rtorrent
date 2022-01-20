@@ -37,7 +37,10 @@ spec:
         resources:
           {{ kubernetes_rtorrent_resources | to_yaml | indent(10) }}
         ports:
-        - containerPort: 80
+        - name: xmlrpc
+          containerPort: 8000
+        - name: http
+          containerPort: 8080
 {% if kubernetes_rtorrent_dht == "on" %}
         - name: dht
           containerPort: {{ kubernetes_rtorrent_dht_port }}
@@ -47,17 +50,13 @@ spec:
         - containerPort: {{ i }}
 {% endfor %}
         readinessProbe:
-          exec:
-            command:
-            - pgrep
-            - rtorrent
+          tcpSocket:
+            port: xmlrpc
           initialDelaySeconds: 30
           periodSeconds: 10
         livenessProbe:
-          exec:
-            command:
-            - pgrep
-            - rtorrent
+          tcpSocket:
+            port: xmlrpc
           initialDelaySeconds: 180
           periodSeconds: 10
         volumeMounts:
