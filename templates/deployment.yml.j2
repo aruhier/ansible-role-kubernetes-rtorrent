@@ -30,6 +30,20 @@ spec:
         {{ kubernetes_rtorrent_node_selector | to_yaml | indent(8) }}
 {% endif %}
       restartPolicy: Always
+      initContainers:
+      - image: {{ kubernetes_rtorrent_image }}
+        name: init-rtorrent
+        imagePullPolicy: Always
+        command: ['/bin/sh']
+        args: ['-c', 'cp /data/rtorrent/* /data/rtorrent/.* /configempty; cp /config/rtorrent.rc /configempty/.rtorrent.rc']
+        resources:
+          {{ kubernetes_rtorrent_resources | to_yaml | indent(10) }}
+        volumeMounts:
+        - mountPath: /config/rtorrent.rc
+          name: rtorrent-config
+          subPath: rtorrent.rc
+        - mountPath: /configempty
+          name: rtorrent-emptydir
       containers:
       - image: {{ kubernetes_rtorrent_image }}
         imagePullPolicy: Always
@@ -60,10 +74,9 @@ spec:
           initialDelaySeconds: 180
           periodSeconds: 10
         volumeMounts:
-        - mountPath: /config/rtorrent/rtorrent.rc
-          name: rtorrent-config
-          subPath: rtorrent.rc
-        - mountPath: /config/rtorrent/rtorrent_sess
+        - mountPath: /data/rtorrent
+          name: rtorrent-emptydir
+        - mountPath: {{ kubernetes_rtorrent_directory_session }}
           name: rtorrent-session
           {% if kubernetes_rtorrent_session_volume.subPath is defined %}subPath: {{ kubernetes_rtorrent_session_volume.subPath }}{% endif %}
 
@@ -81,6 +94,8 @@ spec:
 {% endfor %}
 
       volumes:
+      - name: rtorrent-emptydir
+        emptyDir: {}
       - name: rtorrent-config
         configMap:
           name: {{ kubernetes_rtorrent_configmap }}

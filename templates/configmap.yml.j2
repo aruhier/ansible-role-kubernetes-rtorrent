@@ -138,7 +138,6 @@ data:
         method.set_key = event.download.finished,set_done_var,d.custom2.set=
     {% endfor %}
     schedule2 = {{ kubernetes_rtorrent_schedule_untied_directory }}
-    method.insert = d.data_path, simple, "if=(d.is_multi_file), (cat,(d.directory),/), (cat,(d.directory),/,(d.name))"
 
     # Move torrents on completion
     {% if kubernetes_rtorrent_move_when_complete %}
@@ -175,10 +174,5 @@ data:
     #hash_max_tries = 10
 
     # Specific to this docker
-    execute = {sh,-c,/usr/bin/php7 /usr/share/webapps/rutorrent/php/initplugins.php abc &}
-    execute.nothrow = rm,/run/php/.rtorrent.sock
-    network.scgi.open_local = /run/php/.rtorrent.sock
-    schedule2 = socket_chmod,0,0,"execute=chmod,0660,/run/php/.rtorrent.sock"
-    schedule2 = socket_chgrp,0,0,"execute=chgrp,abc,/run/php/.rtorrent.sock"
-    log.open_file = "rtorrent", /config/log/rtorrent/rtorrent.log
+    log.open_file = "rtorrent", /data/rtorrent/log/rtorrent.log
     log.add_output = "info", "rtorrent"
