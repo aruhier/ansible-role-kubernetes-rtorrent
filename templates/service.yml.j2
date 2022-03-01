@@ -3,6 +3,9 @@ apiVersion: v1
 metadata:
   name: {{ kubernetes_rtorrent_service }}
 spec:
+{% if kubernetes_rtorrent_service_additional_specs %}
+  {{ kubernetes_rtorrent_service_additional_specs | to_nice_yaml | indent(2) }}
+{% endif %}
   selector:
     app: {{ kubernetes_rtorrent_app }}
   type: NodePort
