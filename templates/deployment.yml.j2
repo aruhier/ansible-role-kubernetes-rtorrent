@@ -58,10 +58,14 @@ spec:
 {% if kubernetes_rtorrent_dht == "on" %}
         - name: dht
           containerPort: {{ kubernetes_rtorrent_dht_port }}
+          protocol: UDP
 {% endif %}
 {% set kubernetes_rtorrent_portrange = kubernetes_rtorrent_port_range.split("-") %}
 {% for i in range((kubernetes_rtorrent_portrange[0])|int, (kubernetes_rtorrent_portrange[1])|int + 1) %}
         - containerPort: {{ i }}
+          protocol: TCP
+        - containerPort: {{ i }}
+          protocol: UDP
 {% endfor %}
         readinessProbe:
           tcpSocket:
