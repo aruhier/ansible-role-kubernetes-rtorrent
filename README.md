@@ -1,5 +1,7 @@
 Ansible Role: rTorrent for Kubernetes
-======================================
+=====================================
+
+**UNMAINTAINED, I DON'T USE IT ANYMORE.**
 
 Ansible role to install [rTorrent](https://github.com/rakshasa/rtorrent) and
 [ruTorrent](https://github.com/Novik/ruTorrent) on Kubernetes.
